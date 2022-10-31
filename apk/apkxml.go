@@ -1,7 +1,7 @@
 package apk
 
 import (
-	"github.com/shogo82148/androidbinary"
+	"github.com/jarofcolor/androidbinary"
 )
 
 // Instrumentation is an application instrumentation code.
