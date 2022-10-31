@@ -106,6 +106,10 @@ func (k *Apk) Manifest() Manifest {
 	return k.manifest
 }
 
+func (k *Apk) ResourceTable() *androidbinary.TableFile {
+	return k.table
+}
+
 // PackageName returns the package name of the APK.
 func (k *Apk) PackageName() string {
 	return k.manifest.Package.MustString()
