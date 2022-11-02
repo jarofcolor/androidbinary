@@ -25,11 +25,10 @@ type ApkInfo struct {
 	MetaInfo       map[string]string
 }
 
-func ParseApk(apkPath string, isAll bool) (info *ApkInfo, err error) {
-
+func ParseApk(apkPath string, isAll bool) (*ApkInfo, error) {
 	pkg, err := apk.OpenFile(apkPath)
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer pkg.Close()
 
@@ -39,13 +38,14 @@ func ParseApk(apkPath string, isAll bool) (info *ApkInfo, err error) {
 	nameCN, _ := pkg.Manifest().App.Label.WithResTableConfig(&androidbinary.ResTableConfig{Language: [2]uint8{uint8('z'), uint8('h')}}).String()
 	minVersion, _ := pkg.Manifest().SDK.Min.Int32()
 	targetVersion, _ := pkg.Manifest().SDK.Target.Int32()
+
 	iconData, err := pkg.Icon(nil)
 	iconBase64Str := ""
 	if err == nil {
 		iconBase64Str = base64.StdEncoding.EncodeToString(iconData)
 	}
 
-	info = &ApkInfo{
+	info := &ApkInfo{
 		Pkg:           pkg.PackageName(),
 		Name:          name,
 		NameCN:        nameCN,
@@ -66,7 +66,7 @@ func ParseApk(apkPath string, isAll bool) (info *ApkInfo, err error) {
 	info.FileSizeFormat = formatFileSize(f.Size())
 
 	if !isAll {
-		return
+		return info, nil
 	}
 
 	for _, v := range pkg.Manifest().UsesPermissions {
@@ -81,7 +81,7 @@ func ParseApk(apkPath string, isAll bool) (info *ApkInfo, err error) {
 		}
 	}
 
-	return
+	return info, nil
 }
 
 func formatFileSize(fileSize int64) (size string) {

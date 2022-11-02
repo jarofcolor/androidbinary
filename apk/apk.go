@@ -26,6 +26,7 @@ type Apk struct {
 // OpenFile will open the file specified by filename and return Apk
 func OpenFile(filename string) (apk *Apk, err error) {
 	f, err := os.Open(filename)
+	
 	if err != nil {
 		return nil, err
 	}
@@ -40,6 +41,7 @@ func OpenFile(filename string) (apk *Apk, err error) {
 	}
 	apk, err = OpenZipReader(f, fi.Size())
 	if err != nil {
+		
 		return nil, err
 	}
 	apk.f = f
