@@ -4,10 +4,10 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"image"
 	"io"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/jarofcolor/androidbinary"
 
@@ -73,11 +73,13 @@ func (k *Apk) Close() error {
 }
 
 // Icon returns the icon image of the APK.
-func (k *Apk) Icon(resConfig *androidbinary.ResTableConfig) (image.Image, error) {
+func (k *Apk) Icon(resConfig *androidbinary.ResTableConfig) ([]byte, error) {
 	iconPath, err := k.manifest.App.Icon.WithResTableConfig(resConfig).String()
-	if err != nil {
+
+	if err != nil || strings.HasSuffix(iconPath,".xml") {
 		return nil, err
 	}
+	
 	if androidbinary.IsResID(iconPath) {
 		return nil, newError("unable to convert icon-id to icon path")
 	}
@@ -85,8 +87,7 @@ func (k *Apk) Icon(resConfig *androidbinary.ResTableConfig) (image.Image, error)
 	if err != nil {
 		return nil, err
 	}
-	m, _, err := image.Decode(bytes.NewReader(imgData))
-	return m, err
+	return imgData, err
 }
 
 // Label returns the label of the APK.
