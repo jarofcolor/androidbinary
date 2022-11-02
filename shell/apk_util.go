@@ -34,12 +34,27 @@ func ParseApk(apkPath string, isAll bool) (*ApkInfo, error) {
 
 	versionCode, _ := pkg.Manifest().VersionCode.Int32()
 	versionName, _ := pkg.Manifest().VersionName.String()
-	name, _ := pkg.Manifest().App.Label.String()
-	nameCN, _ := pkg.Manifest().App.Label.WithResTableConfig(&androidbinary.ResTableConfig{Language: [2]uint8{uint8('z'), uint8('h')}}).String()
+	name, _ := pkg.Manifest().App.Label.WithResTableConfig(&androidbinary.ResTableConfig{
+		Language: [2]uint8{uint8('e'), uint8('n')},
+	}).String()
+	nameCN, _ := pkg.Manifest().App.Label.WithResTableConfig(&androidbinary.ResTableConfig{
+		Language: [2]uint8{uint8('z'), uint8('h')},
+		Country:  [2]uint8{uint8('C'), uint8('N')},
+	}).String()
 	minVersion, _ := pkg.Manifest().SDK.Min.Int32()
 	targetVersion, _ := pkg.Manifest().SDK.Target.Int32()
 
-	iconData, err := pkg.Icon(nil)
+	densities := []uint16{640, 560, 480, 440, 420, 360, 240, 260, 120}
+	iconData := []byte{}
+	for _, density := range densities {
+		iconData, err = pkg.Icon(&androidbinary.ResTableConfig{
+			Density: density,
+		})
+		if err == nil {
+			break
+		}
+	}
+
 	iconBase64Str := ""
 	if err == nil {
 		iconBase64Str = base64.StdEncoding.EncodeToString(iconData)
